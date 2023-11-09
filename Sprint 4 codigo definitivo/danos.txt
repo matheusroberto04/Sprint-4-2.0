@@ -1,0 +1,6 @@
+Sim! Cobrimos danos como:
+-> Incêndio
+-> Queda
+-> Tentativa de roubo
+-> Situações em que a bicicleta esteja sendo transportada por um veículo.
+-> Situação de curto-circuito em bikes elétricas.

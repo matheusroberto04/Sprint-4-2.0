@@ -1,7 +1,12 @@
 # Importando bibliotecas necessarias
-import cx_Oracle as oc
+import cx_Oracle as cx
 import pandas as pd
 import requests
+
+conn = cx.connect(user= "RM98581", password= "261204", host="oracle.fiap.com.br", port= "1521", service_name= "ORCL")
+print(conn.version)
+cur = conn.cursor()
+
 # Menu de escolha que retorna um valor para inicializar uma funçoes do menu
 def exibir_menu():
     escolha = (input('''
@@ -15,7 +20,8 @@ def exibir_menu():
     | [2] - Cadastro de usuario                |
     | [3] - Menu de Informações(FAQ)           |
     | [4] - Sair                               |
-    |------------------------------------------|    
+    | [5] - GitHub DEVS                        |
+    |                                          |    
     ---> '''))
     return escolha
 
@@ -46,28 +52,59 @@ def exibir_informacoes():
         escolha_faq = int(input("Escolha uma opção: "))
 
         if escolha_faq == 1:
-            with open('beneficios.txt', 'r') as file:
-                print(file.read())
+            print(''' 
+                Com o nosso seguro, você terá diversos benefícios como:
+                -> Desconto de 5% na contratação de mais de uma bike em uma única apólice.
+                -> Seguro de vida, caso haja alguma morte acidental ou invalidez permanente decorrente do acidente.
+                -> Cobrimos as despesas médicas, hospitalares e odontológicas, caso o cliente se envolva em um acidente.
+                -> Cobre o extravio da bicicleta em viagens aéreas ou rodoviárias, durante o trajeto de ida e volta, 
+                desde que esteja com o ticket de embarque.
+
+                -> Pedal Essencial: plano gratuito que oferece reparo e/ou troca de câmaras de ar, correntes, coroas, 
+                manetes de freios, além de lubrificação de correntes.
+
+                -> Pedal Leve: mesmas garantias do plano Pedal Essencial, com um benefício a mais: transporte do 
+                segurado e sua bike em caso de quebra ou acidente, com limite de 50 km.
+
+                -> Pedal Elite: Tem tudo o que o plano Pedal Essencial oferece, com um benefício a mais: transporte 
+                do segurado e sua bike em caso de quebra ou acidente, com limite de 150 km.                  
+            ''')
 
         elif escolha_faq == 2:
-            with open('contratacao.txt','r') as file:
-                print(file.read())
+            print('''
+            Para contratar o nosso serviço, basta entrar em contato com os nossos atendentes através do 
+            nosso site ou pelo WhatsApp 11 3003 9303!
+            ''')
 
         elif escolha_faq == 3:
-            with open('danos.txt', 'r') as file:
-                print(file.read())
+            print(''' Sim! Cobrimos danos como:
+                -> Incêndio
+                -> Queda
+                -> Tentativa de roubo
+                -> Situações em que a bicicleta esteja sendo transportada por um veículo.
+                -> Situação de curto-circuito em bikes elétricas.
+            ''')
 
         elif escolha_faq == 4:
-            with open('cliente.txt', 'r') as file:
-                print(file.read())
+            print(''' 
+                O cliente deve ser maior de 18 anos, além de necessitar ter em mãos a nota fiscal da bicicleta, 
+                principalmente se for comprada no exterior, e a bike deve ser:
+                -> Tradicional/nova.
+                -> Tradicional com até 8 anos de uso.
+                -> Bicicleta elétrica com até 3 anos de uso.
+            ''')
 
         elif escolha_faq == 5:
-            with open('roubo.txt', 'r') as file:
-                print(file.read())
+            print(''' 
+            Caso a sua bicicleta seja roubada, você deve entrar em contato através do nosso site ou 
+            WhatsApp 11 3003 9303. No entanto, em caso de furto simples, como o desaparecimento da bicicleta ou roubo sem 
+            vestígios, não são cobertos pelo seguro bike.
+            ''')
 
         elif escolha_faq == 6:
             print('Obrigado por escolher o nosso seguro, a Porto agradece!')
             break
+
         else:
             print('Opção inválida')
 
@@ -76,7 +113,6 @@ def exibir_informacoes():
             escolha_faq = 0
         else:
             escolha_faq = 6
-            exibir_menu()
 # Função que recebe e armazena os dados pessoais
 def dados_pessoais():
     while True:
@@ -110,7 +146,9 @@ def dados_pessoais():
                 print('Opção Inválida!')
         else:
             print('Campos vazios, preencha novamente!')
-    #NAO CONSIGO AJUSTAR PORQUE TA DANDO ERRO AO EXECUTAR tabela_cliente = "INSERT INTO dados_pessoais VALUES (:1, :2, :3, :4)"
+    tabela_cliente = "INSERT INTO dados_pessoais VALUES (:1, :2, :3, :4)"
+    cur.execute(tabela_cliente[nome_completo,nascimento,ano_nascimento, cpf])
+    conn.commit()
     return dados_pessoais, ano_nascimento
 # Função que recebe e armazena os dados de contato
 def dados_de_contato():
@@ -135,7 +173,9 @@ def dados_de_contato():
             print('Opção Inválida!')
         else:
             print('Campos vazios ou opção "NÃO" selecionada, preencha novamente.')
-    #NAO DA PRA AJUSTAR POR CAUSA DO MODULO AVISAR O FERNANDO tabela_contato = "INSERT INTO dados_de_contato VALUES (:1, :2)"  
+    tabela_contato = "INSERT INTO dados_de_contato VALUES (:1, :2)"  
+    cur.execute(tabela_contato[email_usuario,telefone])
+    conn.commit()
     return contato
 # Função que recebe e armazena o endereço do usuário
 def captura_dados_endereco():
@@ -182,8 +222,9 @@ def captura_dados_endereco():
             print('Opção Inválida!')
         else:
             print('Campos vazios ou opção "NÃO" selecionada, preencha novamente.')
-     #MESMO PROBLEMA   tabela_endereco = "INSERT INTO dados_endereco VALUES (:1, :2)" 
-        
+    tabela_endereco = "INSERT INTO dados_endereco VALUES (:1, :2)" 
+    cur.execute(tabela_endereco[cep,complemento])
+    conn.commit()   
     return dados_endereco
 
 #-----------------------------------------------------------------------------------------#
@@ -323,7 +364,8 @@ def criar_registro_bike():
     print('-------------------------------------')
     # As variáveis <ponto_positivos> e <ponto_negativos> serão usadas para validar a vistoria na função <menu()>
     tabela_bike = ("INSERT INTO criar_registro_bike (:1,:2,:3,:4,:5")
-    
+    cur.execute(tabela_bike[numero_serie,marca_bike,modelo_bike,valor_bike,cor_bike])
+    conn.commit()
     return registro_bike
 
 # Função que recebe e armazena o recursos de segurança da bike
@@ -480,7 +522,7 @@ def acessorios_bike():
         criar_registro_bike()
     # As variáveis <ponto_positivos> e <ponto_negativos> serão usadas para validar a vistoria na função <menu()>
     return ponto_positivo, lista_acessorios
-#Funcao que armazena o GitHub do DEVS 
+
 # Função que faz a validação da vistoria com a utilizaçao de dois paramentros
 def aceitacao_de_seguro(ponto_positivo, ponto_negativo):
     if ponto_positivo >= ponto_negativo :

@@ -1,0 +1,5 @@
+O cliente deve ser maior de 18 anos, além de necessitar ter em mãos a nota fiscal da bicicleta,
+principalmente se for comprada no exterior, e a bike deve ser:
+        -> Tradicional/nova.
+        -> Tradicional com até 8 anos de uso.
+        -> Bicicleta elétrica com até 3 anos de uso.
